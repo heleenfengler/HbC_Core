@@ -9,33 +9,33 @@
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 :root{
   --orange:#F7941D;--charcoal:#414042;--border:#e8e5e0;--muted:#7a7874;
-  --success:#3B6D11;--danger:#C0392B;--info:#2B7EC1;--warn:#D85A30;--purple:#533AB7;
+  --success:#3B6D11;--danger:#C0392B;--info:#2B7EC1;--warn:#D85A30;--purple:#7757EC;
   --col-task:272px;--col-week:100px;--row-h:42px;
 }
-body{font-family:'Figtree',sans-serif;background:#f4f2ef;color:var(--charcoal);min-height:100vh;padding:14px 20px 40px}
+body{font-family:'Figtree',sans-serif;background:#F5F3F0;color:var(--charcoal);min-height:100vh;padding:14px 20px 40px}
 
 /* TOPBAR */
 .topbar{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;flex-wrap:wrap;gap:8px}
 .brand{display:flex;align-items:center;gap:10px}
 
 .brand-dot svg{width:18px;height:18px;fill:white}
-.page-title{font-size:19px;font-weight:700;letter-spacing:-.3px}
+.page-title{font-size:18px;font-weight:600;letter-spacing:-.3px}
 .brand-sub{font-size:11px;color:var(--muted)}
-.accel{display:inline-flex;align-items:center;gap:4px;background:#FEF0DC;color:var(--orange);font-size:10px;font-weight:700;padding:2px 8px;border-radius:12px;border:1px solid #F7941D33;margin-left:6px}
+.accel{display:inline-flex;align-items:center;gap:4px;background:var(--orange);color:white;font-size:10px;font-weight:700;padding:3px 10px;border-radius:20px;margin-left:8px;letter-spacing:.3px}
 .topbar-actions{display:flex;gap:6px;flex-wrap:wrap}
 .btn{display:inline-flex;align-items:center;gap:5px;padding:7px 13px;border-radius:8px;font-size:11px;font-weight:600;font-family:'Figtree',sans-serif;cursor:pointer;border:none;transition:opacity .15s,transform .1s;white-space:nowrap}
 .btn:active{transform:scale(.97)}
 .btn-primary{background:var(--orange);color:white}
 .btn-ghost{background:white;color:var(--charcoal);border:1px solid var(--border)}
 .btn-danger{background:#fff0ee;color:var(--danger);border:1px solid #ffd0cc}
-.btn-info{background:#e8f2fb;color:var(--info);border:1px solid #c0d8f0}
-.btn-purple{background:#eeedfe;color:var(--purple);border:1px solid #d0cdf6}
+.btn-info{background:#FEF0DC;color:var(--orange);border:1px solid #F7941D44}
+.btn-purple{background:#f0eeff;color:var(--purple);border:1px solid #7757EC44}
 .btn svg{width:13px;height:13px}
 .badge{background:var(--orange);color:white;font-size:9px;padding:1px 5px;border-radius:7px;display:none}
 
 /* CARDS */
 .cards{display:flex;gap:8px;margin-bottom:10px;flex-wrap:wrap}
-.card{background:white;border:1px solid var(--border);border-radius:10px;padding:11px 14px;flex:1;min-width:110px}
+.card{background:white;border:1px solid var(--border);border-radius:20px;padding:11px 14px;flex:1;min-width:110px;transition:box-shadow .15s}.card:hover{box-shadow:0 2px 12px rgba(247,148,29,.1)}
 .card-label{font-size:10px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;margin-bottom:2px}
 .card-value{font-size:18px;font-weight:700}
 .card-sub{font-size:10px;color:var(--muted);margin-top:1px}
@@ -51,11 +51,11 @@ body{font-family:'Figtree',sans-serif;background:#f4f2ef;color:var(--charcoal);m
 .sd{width:8px;height:8px;border-radius:50%}
 
 /* GANTT */
-.gantt-wrap{background:white;border:1px solid var(--border);border-radius:12px;overflow:hidden;max-height:72vh}
+.gantt-wrap{background:white;border:1px solid var(--border);border-radius:20px;overflow:hidden;max-height:72vh}
 .gantt-scroll{overflow-x:auto;overflow-y:auto;max-height:72vh}
 .gantt-table{display:grid;grid-template-columns:var(--col-task) repeat(8,var(--col-week));min-width:calc(var(--col-task) + 8*var(--col-week))}
 
-.gh-cell{padding:8px 0 6px;font-size:10px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.4px;border-bottom:2px solid var(--border);background:#fbf9f6;position:sticky;top:0;z-index:10}
+.gh-cell{padding:8px 0 6px;font-size:10px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.4px;border-bottom:2px solid var(--border);border-top:3px solid var(--orange);background:#fbf9f6;position:sticky;top:0;z-index:10}
 .gh-task{padding-left:14px}
 .gh-week{text-align:center;padding:5px 2px}
 .gh-week .wl{font-weight:700;font-size:11px;color:var(--charcoal)}
@@ -102,7 +102,7 @@ body{font-family:'Figtree',sans-serif;background:#f4f2ef;color:var(--charcoal);m
 .overlay.open{opacity:1;pointer-events:all}
 .panel{position:fixed;top:0;right:-490px;width:470px;height:100vh;background:white;box-shadow:-4px 0 24px rgba(0,0,0,.12);z-index:101;transition:right .25s cubic-bezier(.4,0,.2,1);display:flex;flex-direction:column}
 .panel.open{right:0}
-.panel-header{padding:14px 16px;border-bottom:1px solid var(--border);display:flex;align-items:flex-start;gap:8px;flex-shrink:0}
+.panel-header{padding:14px 16px;border-bottom:1px solid var(--border);border-top:3px solid var(--orange);display:flex;align-items:flex-start;gap:8px;flex-shrink:0}
 .panel-title{font-size:14px;font-weight:700;line-height:1.3;flex:1}
 .panel-phase{font-size:10px;font-weight:600;margin-top:2px;text-transform:uppercase;letter-spacing:.4px}
 .pclose{width:26px;height:26px;border-radius:6px;background:#f4f2ef;border:none;cursor:pointer;font-size:14px;color:var(--muted);flex-shrink:0}
@@ -110,7 +110,7 @@ body{font-family:'Figtree',sans-serif;background:#f4f2ef;color:var(--charcoal);m
 .panel-footer{padding:10px 16px;border-top:1px solid var(--border);display:flex;gap:7px;flex-shrink:0}
 
 /* TABS inside panel */
-.tab-bar{display:flex;gap:0;border:1px solid var(--border);border-radius:8px;overflow:hidden;flex-shrink:0}
+.tab-bar{display:flex;gap:0;border:1px solid var(--border);border-radius:20px;overflow:hidden;flex-shrink:0}
 .tab{flex:1;padding:6px 4px;font-size:11px;font-weight:600;text-align:center;cursor:pointer;background:white;border:none;color:var(--muted);font-family:'Figtree',sans-serif;transition:background .15s}
 .tab.active{background:var(--orange);color:white}
 
@@ -164,17 +164,17 @@ select.s-complete{border-color:var(--success);background:#f4faf0}
 .readiness-title{font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.4px;color:var(--charcoal)}
 .readiness-score{font-size:12px;font-weight:700;color:var(--muted)}
 .readiness-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:8px}
-.rc{background:white;border:1px solid var(--border);border-radius:10px;padding:12px 14px}
+.rc{background:white;border:1px solid var(--border);border-radius:20px;padding:12px 14px}
 .rc-title{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.4px;margin-bottom:8px;color:var(--muted)}
 .rc-item{display:flex;align-items:flex-start;gap:8px;padding:5px 0;border-bottom:1px solid #f4f2ef;cursor:pointer}
 .rc-item:last-child{border-bottom:none}
 .rc-check{width:16px;height:16px;border-radius:4px;border:1.5px solid var(--border);flex-shrink:0;display:flex;align-items:center;justify-content:center;margin-top:1px;transition:all .15s}
-.rc-check.checked{background:var(--success);border-color:var(--success)}
+.rc-check.checked{background:var(--orange);border-color:var(--orange)}
 .rc-check.checked::after{content:'✓';font-size:10px;color:white;font-weight:700}
 .rc-text{font-size:11.5px;line-height:1.4}
 .rc-text.checked-text{color:var(--muted);text-decoration:line-through}
 .progress-bar-wrap{height:6px;background:#f0ede8;border-radius:3px;margin-top:8px;overflow:hidden}
-.progress-bar-fill{height:100%;border-radius:3px;background:var(--success);transition:width .3s}
+.progress-bar-fill{height:100%;border-radius:3px;background:var(--orange);transition:width .3s}
 
 ::-webkit-scrollbar{width:5px;height:5px}
 ::-webkit-scrollbar-thumb{background:#d4d0cc;border-radius:3px}
@@ -185,22 +185,11 @@ select.s-complete{border-color:var(--success);background:#f4faf0}
 <div class="topbar">
   <div>
     <div class="brand">
-      <a href="https://healthbridge.co.za/" target="_blank" style="display:flex;align-items:center;text-decoration:none">
-        <svg height="32" viewBox="0 0 160 32" xmlns="http://www.w3.org/2000/svg" style="display:block;flex-shrink:0">
-  <!-- H icon block -->
-  <rect width="28" height="28" x="0" y="2" rx="6" fill="#F7941D"/>
-  <rect x="6" y="8" width="3.5" height="16" rx="1.5" fill="white"/>
-  <rect x="18.5" y="8" width="3.5" height="16" rx="1.5" fill="white"/>
-  <rect x="6" y="15" width="16" height="3.5" rx="1.5" fill="white"/>
-  <!-- Wordmark -->
-  <text x="36" y="21" font-family="Figtree,sans-serif" font-size="15" font-weight="700" fill="#414042" letter-spacing="-0.3">health</text>
-  <text x="85" y="21" font-family="Figtree,sans-serif" font-size="15" font-weight="700" fill="#F7941D" letter-spacing="-0.3">bridge</text>
-</svg>
-      </a>
-      <div style="width:1px;height:32px;background:var(--border);margin:0 12px"></div>
+      <span style="font-size:15px;font-weight:600;color:var(--charcoal)">Healthbridge</span>
+      <div style="width:1px;height:36px;background:var(--border);margin:0 14px"></div>
       <div>
         <div class="page-title">HbC Clinical Lite <span class="accel">⚡ May 2026</span></div>
-        <div class="brand-sub">Live Project Tracker · <span style="color:var(--success);font-weight:600">● Shared</span> — changes sync across all viewers</div>
+        <div class="brand-sub">Live project tracker &nbsp;·&nbsp; <span style="color:#75EB9E;font-weight:700;text-shadow:0 0 8px rgba(117,235,158,.4)">● Shared</span> &nbsp;·&nbsp; changes sync across all viewers</div>
       </div>
     </div>
   </div>
@@ -227,7 +216,7 @@ select.s-complete{border-color:var(--success);background:#f4faf0}
   <span class="li"><span class="ld" style="background:#2B7EC1"></span>Backend &amp; Infra</span>
   <span class="li"><span class="ld" style="background:#0F6E56"></span>Sign-up &amp; Onboarding</span>
   <span class="li"><span class="ld" style="background:#D85A30"></span>Pathology</span>
-  <span class="li"><span class="ld" style="background:#533AB7"></span>Nora</span>
+  <span class="li"><span class="ld" style="background:#7757EC"></span>Nora</span>
   <span class="li"><span class="ld" style="background:#3B6D11"></span>QA &amp; Testing</span>
   <span class="li"><span class="ld" style="background:#414042"></span>Go-to-Market</span>
   <div class="sleg">
@@ -391,7 +380,7 @@ select.s-complete{border-color:var(--success);background:#f4faf0}
 <script>
 // ─── DATA ──────────────────────────────────────────────────────────────────
 const WEEKS=[{l:"W1",d:"Apr 8–14",today:true},{l:"W2",d:"Apr 15–21",next:true},{l:"W3",d:"Apr 22–28"},{l:"W4",d:"Apr 29–May 5"},{l:"W5",d:"May 6–12"},{l:"W6",d:"May 13–19"},{l:"W7",d:"May 20–26"},{l:"W8",d:"May 27–Jun 2"}];
-const MS=[{week:5,label:"Feature complete",color:"#533AB7"},{week:6,label:"🚀 Launch",color:"#D85A30"}];
+const MS=[{week:5,label:"Feature complete",color:"#7757EC"},{week:6,label:"🚀 Launch",color:"#D85A30"}];
 
 const PHASES=[
   {id:"design",label:"Product & Design",color:"#F7941D",bg:"#FEF0DC",tasks:[
@@ -423,7 +412,7 @@ const PHASES=[
     {id:"p3",name:"Patient creation from path result",s:3,e:4,owner:"Alex",notes:"Core use case; short patient record created",deps:["p1","b3"]},
     {id:"p4",name:"AI pathology parsing — Harry's agent",s:2,e:4,owner:"Harry + Alex",notes:"AI summarises result; test continuously"}
   ]},
-  {id:"nora",label:"Nora / Clinical Note",color:"#533AB7",bg:"#EEEDFE",tasks:[
+  {id:"nora",label:"Nora / Clinical Note",color:"#7757EC",bg:"#EEEDFE",tasks:[
     {id:"n1",name:"Nora clinical note component (Lite)",s:3,e:5,owner:"Alex",notes:"Voice → SOAP notes",deps:["d4"]},
     {id:"n2",name:"Voice recording → notes generation",s:3,e:5,owner:"Alex",notes:"Capture, transcribe, generate note",deps:["n1"]},
     {id:"n3",name:"Nora design merge into full HBC",s:5,e:6,owner:"Alex + Jared",notes:"Single shared component",deps:["n1","n2"]}
@@ -682,7 +671,7 @@ async function delMeet(i){S.meetings.splice(i,1);await save();renderMeetings();u
 // ─── RAID ────────────────────────────────────────────────────────────────────
 function openRaid(){document.getElementById('raid-panel').classList.add('open');document.getElementById('ov').classList.add('open');renderRaid();}
 function closeRaid(){document.getElementById('raid-panel').classList.remove('open');document.getElementById('ov').classList.remove('open');}
-const raidColors={risk:{bg:'#fff0ee',color:'#C0392B'},assumption:{bg:'#fff8f0',color:'#D85A30'},issue:{bg:'#fef9e7',color:'#8B6914'},dependency:{bg:'#eeedfe',color:'#533AB7'}};
+const raidColors={risk:{bg:'#fff0ee',color:'#C0392B'},assumption:{bg:'#fff8f0',color:'#D85A30'},issue:{bg:'#fef9e7',color:'#8B6914'},dependency:{bg:'#eeedfe',color:'#7757EC'}};
 async function addRaid(){
   const desc=document.getElementById('r-desc').value.trim();
   if(!desc) return;
