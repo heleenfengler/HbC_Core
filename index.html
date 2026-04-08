@@ -1,0 +1,786 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>HbC Clinical Lite — Project Tracker</title>
+<link href="https://fonts.googleapis.com/css2?family=Figtree:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --orange:#F7941D;--charcoal:#414042;--border:#e8e5e0;--muted:#7a7874;
+  --success:#3B6D11;--danger:#C0392B;--info:#2B7EC1;--warn:#D85A30;--purple:#533AB7;
+  --col-task:272px;--col-week:100px;--row-h:42px;
+}
+body{font-family:'Figtree',sans-serif;background:#f4f2ef;color:var(--charcoal);min-height:100vh;padding:14px 20px 40px}
+
+/* TOPBAR */
+.topbar{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;flex-wrap:wrap;gap:8px}
+.brand{display:flex;align-items:center;gap:10px}
+
+.brand-dot svg{width:18px;height:18px;fill:white}
+.page-title{font-size:19px;font-weight:700;letter-spacing:-.3px}
+.brand-sub{font-size:11px;color:var(--muted)}
+.accel{display:inline-flex;align-items:center;gap:4px;background:#FEF0DC;color:var(--orange);font-size:10px;font-weight:700;padding:2px 8px;border-radius:12px;border:1px solid #F7941D33;margin-left:6px}
+.topbar-actions{display:flex;gap:6px;flex-wrap:wrap}
+.btn{display:inline-flex;align-items:center;gap:5px;padding:7px 13px;border-radius:8px;font-size:11px;font-weight:600;font-family:'Figtree',sans-serif;cursor:pointer;border:none;transition:opacity .15s,transform .1s;white-space:nowrap}
+.btn:active{transform:scale(.97)}
+.btn-primary{background:var(--orange);color:white}
+.btn-ghost{background:white;color:var(--charcoal);border:1px solid var(--border)}
+.btn-danger{background:#fff0ee;color:var(--danger);border:1px solid #ffd0cc}
+.btn-info{background:#e8f2fb;color:var(--info);border:1px solid #c0d8f0}
+.btn-purple{background:#eeedfe;color:var(--purple);border:1px solid #d0cdf6}
+.btn svg{width:13px;height:13px}
+.badge{background:var(--orange);color:white;font-size:9px;padding:1px 5px;border-radius:7px;display:none}
+
+/* CARDS */
+.cards{display:flex;gap:8px;margin-bottom:10px;flex-wrap:wrap}
+.card{background:white;border:1px solid var(--border);border-radius:10px;padding:11px 14px;flex:1;min-width:110px}
+.card-label{font-size:10px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;margin-bottom:2px}
+.card-value{font-size:18px;font-weight:700}
+.card-sub{font-size:10px;color:var(--muted);margin-top:1px}
+.orange{color:var(--orange)}.red{color:var(--danger)}.green{color:var(--success)}.purple{color:var(--purple)}
+
+/* LEGEND */
+.legend{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px;align-items:center;font-size:11px}
+.legend-title{font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.4px;font-size:10px}
+.li{display:flex;align-items:center;gap:4px}
+.ld{width:10px;height:10px;border-radius:2px}
+.sleg{display:flex;gap:8px;margin-left:auto}
+.sl{display:flex;align-items:center;gap:3px;color:var(--muted);font-size:10px}
+.sd{width:8px;height:8px;border-radius:50%}
+
+/* GANTT */
+.gantt-wrap{background:white;border:1px solid var(--border);border-radius:12px;overflow:hidden;max-height:72vh}
+.gantt-scroll{overflow-x:auto;overflow-y:auto;max-height:72vh}
+.gantt-table{display:grid;grid-template-columns:var(--col-task) repeat(8,var(--col-week));min-width:calc(var(--col-task) + 8*var(--col-week))}
+
+.gh-cell{padding:8px 0 6px;font-size:10px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.4px;border-bottom:2px solid var(--border);background:#fbf9f6;position:sticky;top:0;z-index:10}
+.gh-task{padding-left:14px}
+.gh-week{text-align:center;padding:5px 2px}
+.gh-week .wl{font-weight:700;font-size:11px;color:var(--charcoal)}
+.gh-week .wd{font-size:9px;color:var(--muted);margin-top:1px;font-weight:400;text-transform:none;letter-spacing:0}
+.gh-week .ms-badge{display:inline-block;font-size:8px;font-weight:700;padding:1px 5px;border-radius:8px;color:white;margin-top:2px;text-transform:none;letter-spacing:0}
+.gh-week.today-col{background:#fff8f0}
+.gh-week.next-col{background:#fff4f1}
+
+.phase-row{grid-column:1/-1;padding:5px 14px;font-size:10px;font-weight:700;letter-spacing:.5px;text-transform:uppercase;display:flex;align-items:center;gap:7px;border-bottom:1px solid var(--border)}
+.pdot{width:7px;height:7px;border-radius:50%;flex-shrink:0}
+
+.task-name-cell{padding:0 6px 0 12px;display:flex;align-items:center;flex-wrap:wrap;gap:3px;font-size:12px;border-bottom:1px solid #f0ede8;min-height:var(--row-h);cursor:pointer;transition:background .1s;position:relative}
+.task-name-cell:hover{background:#faf8f5}
+.tntext{flex:1;min-width:0}
+.owner-tag{font-size:9px;color:var(--muted);white-space:nowrap}
+.utag{font-size:8px;font-weight:700;background:#FEF0DC;color:var(--orange);padding:1px 5px;border-radius:7px}
+.btag{font-size:8px;font-weight:700;background:#fff0ee;color:var(--danger);padding:1px 5px;border-radius:7px}
+.dtag{font-size:8px;font-weight:700;background:#eeedfe;color:var(--purple);padding:1px 5px;border-radius:7px;cursor:help}
+.sdot{width:6px;height:6px;border-radius:50%;flex-shrink:0;margin-right:1px}
+.edit-hint{position:absolute;right:6px;font-size:9px;color:var(--muted);opacity:0;transition:opacity .15s}
+.task-name-cell:hover .edit-hint{opacity:1}
+
+.bar-row{grid-column:2/-1;position:relative;border-bottom:1px solid #f0ede8;min-height:var(--row-h);display:grid;grid-template-columns:repeat(8,var(--col-week));cursor:pointer}
+.bg-stripe{border-left:1px solid #f5f3f0;min-height:var(--row-h)}
+.bg-stripe.today-col{background:#fffbf5}
+.bg-stripe.next-col{background:#fff9f7}
+.bg-stripe.ms-col{border-left:2px dashed #d0cbc4}
+
+/* bars */
+.bar{position:absolute;top:50%;transform:translateY(-50%);height:22px;border-radius:5px;display:flex;align-items:center;padding:0 8px;font-size:10px;font-weight:600;white-space:nowrap;overflow:hidden;z-index:3;color:white;transition:filter .15s}
+.bar:hover{filter:brightness(1.08)}
+.bar.blocked{background-image:repeating-linear-gradient(-45deg,transparent,transparent 5px,rgba(0,0,0,.15) 5px,rgba(0,0,0,.15) 10px)!important;outline:2px solid var(--danger)}
+.bar.complete{opacity:.5}
+.bar.active{box-shadow:0 0 0 2px white,0 0 0 3.5px var(--bc,#F7941D)}
+.bar.upcoming{opacity:.72}
+.bar.urgent{box-shadow:0 0 0 2px white,0 0 0 3px #D85A30}
+.bar-progress{position:absolute;top:0;left:0;height:100%;border-radius:5px;background:rgba(255,255,255,.22);pointer-events:none}
+/* ghost bar — original position */
+.bar-ghost{position:absolute;top:50%;transform:translateY(-50%);height:22px;border-radius:5px;z-index:2;opacity:.2;border:2px dashed;pointer-events:none}
+.drift-badge{position:absolute;top:2px;right:3px;font-size:8px;font-weight:700;background:rgba(0,0,0,.5);color:white;padding:0 3px;border-radius:3px}
+
+/* PANEL (right) */
+.overlay{position:fixed;inset:0;background:rgba(0,0,0,.22);z-index:100;opacity:0;pointer-events:none;transition:opacity .2s}
+.overlay.open{opacity:1;pointer-events:all}
+.panel{position:fixed;top:0;right:-490px;width:470px;height:100vh;background:white;box-shadow:-4px 0 24px rgba(0,0,0,.12);z-index:101;transition:right .25s cubic-bezier(.4,0,.2,1);display:flex;flex-direction:column}
+.panel.open{right:0}
+.panel-header{padding:14px 16px;border-bottom:1px solid var(--border);display:flex;align-items:flex-start;gap:8px;flex-shrink:0}
+.panel-title{font-size:14px;font-weight:700;line-height:1.3;flex:1}
+.panel-phase{font-size:10px;font-weight:600;margin-top:2px;text-transform:uppercase;letter-spacing:.4px}
+.pclose{width:26px;height:26px;border-radius:6px;background:#f4f2ef;border:none;cursor:pointer;font-size:14px;color:var(--muted);flex-shrink:0}
+.panel-body{flex:1;overflow-y:auto;padding:14px 16px;display:flex;flex-direction:column;gap:12px}
+.panel-footer{padding:10px 16px;border-top:1px solid var(--border);display:flex;gap:7px;flex-shrink:0}
+
+/* TABS inside panel */
+.tab-bar{display:flex;gap:0;border:1px solid var(--border);border-radius:8px;overflow:hidden;flex-shrink:0}
+.tab{flex:1;padding:6px 4px;font-size:11px;font-weight:600;text-align:center;cursor:pointer;background:white;border:none;color:var(--muted);font-family:'Figtree',sans-serif;transition:background .15s}
+.tab.active{background:var(--orange);color:white}
+
+/* fields */
+.fg{display:flex;flex-direction:column;gap:4px}
+.fl{font-size:10px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.4px}
+.frow{display:flex;gap:8px}
+select,input[type=text],input[type=date],textarea{font-family:'Figtree',sans-serif;font-size:12px;border:1px solid var(--border);border-radius:7px;padding:6px 9px;width:100%;color:var(--charcoal);background:white;outline:none}
+select:focus,input:focus,textarea:focus{border-color:var(--orange);box-shadow:0 0 0 3px #F7941D1A}
+textarea{resize:vertical;min-height:60px;line-height:1.5}
+.rw{display:flex;align-items:center;gap:8px}
+input[type=range]{flex:1;accent-color:var(--orange)}
+.rv{font-size:12px;font-weight:700;min-width:32px;text-align:right;color:var(--orange)}
+select.s-upcoming{} select.s-active{border-color:var(--orange);background:#fff8f0}
+select.s-blocked{border-color:var(--danger);background:#fff0ee}
+select.s-complete{border-color:var(--success);background:#f4faf0}
+
+/* COMMENTS */
+.comment{background:#f9f8f6;border-radius:7px;padding:9px 11px;margin-bottom:6px}
+.cm{display:flex;justify-content:space-between;align-items:center;margin-bottom:3px}
+.ca{font-size:11px;font-weight:700}
+.cd{font-size:9px;color:var(--muted)}
+.ct{font-size:12px;line-height:1.45}
+.cdel{background:none;border:none;cursor:pointer;font-size:11px;color:#ccc;padding:0 2px}
+.cdel:hover{color:var(--danger)}
+
+/* TIMELINE HISTORY */
+.tl-change{border-left:3px solid var(--orange);padding:7px 10px;background:#fff8f2;border-radius:0 6px 6px 0;margin-bottom:6px}
+.tl-change-meta{font-size:10px;color:var(--muted);margin-bottom:2px}
+.tl-change-detail{font-size:11px;font-weight:600}
+.tl-change-reason{font-size:11px;color:var(--charcoal);margin-top:2px}
+
+/* SLIDE PANELS (left) */
+.lpanel{position:fixed;top:0;left:-510px;width:490px;height:100vh;background:white;box-shadow:4px 0 24px rgba(0,0,0,.12);z-index:101;transition:left .25s cubic-bezier(.4,0,.2,1);display:flex;flex-direction:column}
+.lpanel.open{left:0}
+
+/* RAID / DECISIONS shared styles */
+.log-entry{background:#f9f8f6;border-radius:8px;padding:11px 13px;margin-bottom:8px;position:relative}
+.log-entry-meta{display:flex;gap:8px;margin-bottom:4px;align-items:center;flex-wrap:wrap}
+.log-tag{font-size:9px;font-weight:700;padding:2px 7px;border-radius:8px}
+.log-text{font-size:12px;line-height:1.5}
+.log-owner{font-size:10px;color:var(--muted)}
+.log-date{font-size:10px;color:var(--muted)}
+.ldel{position:absolute;top:8px;right:8px;background:none;border:none;cursor:pointer;font-size:11px;color:#ccc}
+.ldel:hover{color:var(--danger)}
+.empty-state{text-align:center;padding:24px;color:var(--muted);font-size:12px;line-height:1.6}
+
+/* LAUNCH READINESS */
+.readiness-wrap{margin-top:16px}
+.readiness-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px}
+.readiness-title{font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.4px;color:var(--charcoal)}
+.readiness-score{font-size:12px;font-weight:700;color:var(--muted)}
+.readiness-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:8px}
+.rc{background:white;border:1px solid var(--border);border-radius:10px;padding:12px 14px}
+.rc-title{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.4px;margin-bottom:8px;color:var(--muted)}
+.rc-item{display:flex;align-items:flex-start;gap:8px;padding:5px 0;border-bottom:1px solid #f4f2ef;cursor:pointer}
+.rc-item:last-child{border-bottom:none}
+.rc-check{width:16px;height:16px;border-radius:4px;border:1.5px solid var(--border);flex-shrink:0;display:flex;align-items:center;justify-content:center;margin-top:1px;transition:all .15s}
+.rc-check.checked{background:var(--success);border-color:var(--success)}
+.rc-check.checked::after{content:'✓';font-size:10px;color:white;font-weight:700}
+.rc-text{font-size:11.5px;line-height:1.4}
+.rc-text.checked-text{color:var(--muted);text-decoration:line-through}
+.progress-bar-wrap{height:6px;background:#f0ede8;border-radius:3px;margin-top:8px;overflow:hidden}
+.progress-bar-fill{height:100%;border-radius:3px;background:var(--success);transition:width .3s}
+
+::-webkit-scrollbar{width:5px;height:5px}
+::-webkit-scrollbar-thumb{background:#d4d0cc;border-radius:3px}
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div>
+    <div class="brand">
+      <a href="https://healthbridge.co.za/" target="_blank" style="display:flex;align-items:center;text-decoration:none">
+        <svg height="32" viewBox="0 0 160 32" xmlns="http://www.w3.org/2000/svg" style="display:block;flex-shrink:0">
+  <!-- H icon block -->
+  <rect width="28" height="28" x="0" y="2" rx="6" fill="#F7941D"/>
+  <rect x="6" y="8" width="3.5" height="16" rx="1.5" fill="white"/>
+  <rect x="18.5" y="8" width="3.5" height="16" rx="1.5" fill="white"/>
+  <rect x="6" y="15" width="16" height="3.5" rx="1.5" fill="white"/>
+  <!-- Wordmark -->
+  <text x="36" y="21" font-family="Figtree,sans-serif" font-size="15" font-weight="700" fill="#414042" letter-spacing="-0.3">health</text>
+  <text x="85" y="21" font-family="Figtree,sans-serif" font-size="15" font-weight="700" fill="#F7941D" letter-spacing="-0.3">bridge</text>
+</svg>
+      </a>
+      <div style="width:1px;height:32px;background:var(--border);margin:0 12px"></div>
+      <div>
+        <div class="page-title">HbC Clinical Lite <span class="accel">⚡ May 2026</span></div>
+        <div class="brand-sub">Live Project Tracker · <span style="color:var(--success);font-weight:600">● Shared</span> — changes sync across all viewers</div>
+      </div>
+    </div>
+  </div>
+  <div class="topbar-actions">
+    <button class="btn btn-ghost" onclick="openMeet()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>Meetings<span id="b-meet" class="badge"></span></button>
+    <button class="btn btn-info" onclick="openRaid()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>RAID log<span id="b-raid" class="badge"></span></button>
+    <button class="btn btn-purple" onclick="openDec()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>Decisions<span id="b-dec" class="badge"></span></button>
+    <button class="btn btn-danger" onclick="if(confirm('Reset ALL data including meetings, comments and timeline changes?'))resetAll()">Reset</button>
+  </div>
+</div>
+
+<div class="cards">
+  <div class="card"><div class="card-label">Target launch</div><div class="card-value red">20 May</div><div class="card-sub">8-week runway</div></div>
+  <div class="card"><div class="card-label">Complete</div><div class="card-value green" id="sc">0</div><div class="card-sub">tasks done</div></div>
+  <div class="card"><div class="card-label">In progress</div><div class="card-value orange" id="sa">0</div><div class="card-sub">running now</div></div>
+  <div class="card"><div class="card-label">Blocked</div><div class="card-value red" id="sb">0</div><div class="card-sub">need attention</div></div>
+  <div class="card"><div class="card-label">Rescheduled</div><div class="card-value purple" id="sd">0</div><div class="card-sub">timeline shifts</div></div>
+  <div class="card"><div class="card-label">Readiness</div><div class="card-value orange" id="sr">0%</div><div class="card-sub">launch checklist</div></div>
+</div>
+
+<div class="legend">
+  <span class="legend-title">Workstreams</span>
+  <span class="li"><span class="ld" style="background:#F7941D"></span>Product &amp; Design</span>
+  <span class="li"><span class="ld" style="background:#2B7EC1"></span>Backend &amp; Infra</span>
+  <span class="li"><span class="ld" style="background:#0F6E56"></span>Sign-up &amp; Onboarding</span>
+  <span class="li"><span class="ld" style="background:#D85A30"></span>Pathology</span>
+  <span class="li"><span class="ld" style="background:#533AB7"></span>Nora</span>
+  <span class="li"><span class="ld" style="background:#3B6D11"></span>QA &amp; Testing</span>
+  <span class="li"><span class="ld" style="background:#414042"></span>Go-to-Market</span>
+  <div class="sleg">
+    <span class="sl"><span class="sd" style="background:#3B6D11"></span>Complete</span>
+    <span class="sl"><span class="sd" style="background:#F7941D"></span>Active</span>
+    <span class="sl"><span class="sd" style="background:#C0392B"></span>Blocked</span>
+    <span class="sl"><span class="sd" style="background:#aaa"></span>Upcoming</span>
+    <span class="sl"><span style="width:16px;height:8px;border:1.5px dashed #888;border-radius:2px;opacity:.5;display:inline-block"></span>Original position</span>
+  </div>
+</div>
+
+<div class="gantt-wrap"><div class="gantt-scroll"><div class="gantt-table" id="gantt"></div></div></div>
+
+<!-- Launch readiness -->
+<div class="readiness-wrap">
+  <div class="readiness-header">
+    <div class="readiness-title">🚀 Launch readiness checklist</div>
+    <div class="readiness-score" id="ready-score">0 / 0 complete</div>
+  </div>
+  <div class="progress-bar-wrap" style="margin-bottom:12px"><div class="progress-bar-fill" id="ready-bar" style="width:0%"></div></div>
+  <div class="readiness-grid" id="readiness-grid"></div>
+</div>
+
+<!-- Task panel -->
+<div class="overlay" id="ov" onclick="closePanel()"></div>
+<div class="panel" id="panel">
+  <div class="panel-header">
+    <div><div class="panel-title" id="p-title"></div><div class="panel-phase" id="p-phase"></div></div>
+    <button class="pclose" onclick="closePanel()">✕</button>
+  </div>
+  <div class="panel-body">
+    <div class="tab-bar">
+      <button class="tab active" onclick="showTab('details')">Details</button>
+      <button class="tab" onclick="showTab('timeline')">Timeline</button>
+      <button class="tab" onclick="showTab('comments')">Comments</button>
+    </div>
+
+    <!-- DETAILS TAB -->
+    <div id="tab-details">
+      <div class="frow" style="margin-bottom:10px">
+        <div class="fg" style="flex:1"><div class="fl">Status</div>
+          <select id="p-status" onchange="styleStatus()">
+            <option value="upcoming">Upcoming</option>
+            <option value="active">In progress</option>
+            <option value="blocked">Blocked</option>
+            <option value="complete">Complete</option>
+          </select>
+        </div>
+        <div class="fg" style="flex:1"><div class="fl">Owner(s)</div><input type="text" id="p-owner" placeholder="e.g. Alex, Heleen"></div>
+      </div>
+      <div class="fg" style="margin-bottom:10px">
+        <div class="fl">Progress — <span id="p-pct-l">0%</span></div>
+        <div class="rw"><input type="range" min="0" max="100" step="5" id="p-prog" oninput="document.getElementById('p-pct-l').textContent=this.value+'%'"><span class="rv" id="p-pct-v">0%</span></div>
+      </div>
+      <div class="fg" style="margin-bottom:10px"><div class="fl">Notes / context</div><textarea id="p-notes" rows="3"></textarea></div>
+      <div class="fg"><div class="fl">Dependencies (task IDs, comma-separated)</div><input type="text" id="p-deps" placeholder="e.g. d2, b1"></div>
+    </div>
+
+    <!-- TIMELINE TAB -->
+    <div id="tab-timeline" style="display:none">
+      <div style="background:#fff8f2;border:1px solid #f7d9b4;border-radius:8px;padding:10px 12px;margin-bottom:12px;font-size:12px;line-height:1.55;color:var(--charcoal)">
+        Changing the timeline will be logged with the reason, date and your name — visible to everyone as a drift record on the bar.
+      </div>
+      <div class="frow" style="margin-bottom:10px">
+        <div class="fg" style="flex:1"><div class="fl">Start week</div>
+          <select id="p-start"></select>
+        </div>
+        <div class="fg" style="flex:1"><div class="fl">End week</div>
+          <select id="p-end"></select>
+        </div>
+      </div>
+      <div id="orig-dates" style="font-size:11px;color:var(--muted);margin-bottom:10px"></div>
+      <div class="fg" style="margin-bottom:10px"><div class="fl">Reason for reschedule <span style="color:var(--danger)">*</span></div><textarea id="p-reason" rows="2" placeholder="Why is this moving? What caused the change?"></textarea></div>
+      <div class="fg"><div class="fl">Changed by</div><input type="text" id="p-changed-by" placeholder="Your name"></div>
+
+      <div style="margin-top:14px">
+        <div class="fl" style="margin-bottom:8px">Timeline change history</div>
+        <div id="tl-history"></div>
+      </div>
+    </div>
+
+    <!-- COMMENTS TAB -->
+    <div id="tab-comments" style="display:none">
+      <div id="p-comments"></div>
+      <div style="margin-top:10px;display:flex;flex-direction:column;gap:6px">
+        <textarea id="p-new-comment" rows="2" placeholder="Add a comment from today's meeting..."></textarea>
+        <div class="frow">
+          <input type="text" id="p-author" placeholder="Your name" style="flex:1">
+          <button class="btn btn-primary" onclick="addComment()" style="flex:1">Add comment</button>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="panel-footer">
+    <button class="btn btn-primary" onclick="saveTask()" style="flex:1">Save changes</button>
+    <button class="btn btn-ghost" onclick="closePanel()">Cancel</button>
+  </div>
+</div>
+
+<!-- MEETING LOG panel -->
+<div class="lpanel" id="meet-panel">
+  <div class="panel-header"><div><div class="panel-title">Meeting log</div><div class="panel-phase" style="color:var(--muted)">Progress review sessions</div></div><button class="pclose" onclick="closeMeet()">✕</button></div>
+  <div class="panel-body">
+    <div class="fg"><div class="fl">Date</div><input type="date" id="m-date"></div>
+    <div class="fg"><div class="fl">Attendees</div><input type="text" id="m-att" placeholder="Heleen, Jared, Alex..."></div>
+    <div class="fg"><div class="fl">Notes / actions / decisions</div><textarea id="m-notes" rows="4" placeholder="Key updates, blockers, next steps..."></textarea></div>
+    <button class="btn btn-primary" onclick="addMeeting()">Log meeting</button>
+    <div style="border-top:1px solid var(--border);padding-top:12px">
+      <div class="fl" style="margin-bottom:10px">Previous meetings</div>
+      <div id="m-list"></div>
+    </div>
+  </div>
+</div>
+
+<!-- RAID LOG panel -->
+<div class="lpanel" id="raid-panel">
+  <div class="panel-header"><div><div class="panel-title">RAID log</div><div class="panel-phase" style="color:var(--muted)">Risks · Assumptions · Issues · Dependencies</div></div><button class="pclose" onclick="closeRaid()">✕</button></div>
+  <div class="panel-body">
+    <div class="frow">
+      <div class="fg" style="flex:1"><div class="fl">Type</div>
+        <select id="r-type">
+          <option value="risk">Risk</option>
+          <option value="assumption">Assumption</option>
+          <option value="issue">Issue</option>
+          <option value="dependency">Dependency</option>
+        </select>
+      </div>
+      <div class="fg" style="flex:1"><div class="fl">Impact</div>
+        <select id="r-impact">
+          <option value="high">High</option>
+          <option value="medium">Medium</option>
+          <option value="low">Low</option>
+        </select>
+      </div>
+    </div>
+    <div class="fg"><div class="fl">Description</div><textarea id="r-desc" rows="2" placeholder="Describe the risk, assumption, issue or dependency..."></textarea></div>
+    <div class="frow">
+      <div class="fg" style="flex:1"><div class="fl">Owner</div><input type="text" id="r-owner" placeholder="Who owns mitigation?"></div>
+      <div class="fg" style="flex:1"><div class="fl">Mitigation / action</div><input type="text" id="r-mit" placeholder="What's being done?"></div>
+    </div>
+    <button class="btn btn-info" onclick="addRaid()">Add to RAID log</button>
+    <div style="border-top:1px solid var(--border);padding-top:12px"><div class="fl" style="margin-bottom:10px">Log entries</div><div id="r-list"></div></div>
+  </div>
+</div>
+
+<!-- DECISIONS panel -->
+<div class="lpanel" id="dec-panel">
+  <div class="panel-header"><div><div class="panel-title">Decision log</div><div class="panel-phase" style="color:var(--muted)">Key decisions made during delivery</div></div><button class="pclose" onclick="closeDec()">✕</button></div>
+  <div class="panel-body">
+    <div class="fg"><div class="fl">Decision</div><textarea id="d-text" rows="2" placeholder="What was decided?"></textarea></div>
+    <div class="frow">
+      <div class="fg" style="flex:1"><div class="fl">Made by</div><input type="text" id="d-by" placeholder="Person / group"></div>
+      <div class="fg" style="flex:1"><div class="fl">Date</div><input type="date" id="d-date"></div>
+    </div>
+    <div class="fg"><div class="fl">Rationale / context</div><textarea id="d-why" rows="2" placeholder="Why was this decision made?"></textarea></div>
+    <button class="btn btn-purple" onclick="addDecision()">Log decision</button>
+    <div style="border-top:1px solid var(--border);padding-top:12px"><div class="fl" style="margin-bottom:10px">Decision history</div><div id="d-list"></div></div>
+  </div>
+</div>
+
+<script>
+// ─── DATA ──────────────────────────────────────────────────────────────────
+const WEEKS=[{l:"W1",d:"Apr 8–14",today:true},{l:"W2",d:"Apr 15–21",next:true},{l:"W3",d:"Apr 22–28"},{l:"W4",d:"Apr 29–May 5"},{l:"W5",d:"May 6–12"},{l:"W6",d:"May 13–19"},{l:"W7",d:"May 20–26"},{l:"W8",d:"May 27–Jun 2"}];
+const MS=[{week:5,label:"Feature complete",color:"#533AB7"},{week:6,label:"🚀 Launch",color:"#D85A30"}];
+
+const PHASES=[
+  {id:"design",label:"Product & Design",color:"#F7941D",bg:"#FEF0DC",tasks:[
+    {id:"d1",name:"Finalize free trial terms & limits",s:0,e:0,owner:"Heleen + Jared",notes:"6-month vs token model — decide this week",urgent:true},
+    {id:"d2",name:"Provider registration UX spec",s:0,e:0,owner:"Heleen",notes:"Fields: ID, cell, HPCSA card, BPN/TPN + practice checkbox",urgent:true},
+    {id:"d3",name:"Landing page design",s:0,e:1,owner:"Heleen",notes:"Path-first default with Nora entry point"},
+    {id:"d4",name:"Nora UI redesign (shared HBC)",s:1,e:3,owner:"Heleen + Jared",notes:"Single shared Nora component",deps:["d2"]},
+    {id:"d5",name:"Feature-lock / upsell UX",s:2,e:3,owner:"Heleen",notes:"Locked features with upgrade CTA"}
+  ]},
+  {id:"backend",label:"Backend & Infrastructure",color:"#2B7EC1",bg:"#E6F1FB",tasks:[
+    {id:"b1",name:"New screens in Angular 9 codebase",s:0,e:1,owner:"Alex",notes:"Isolated screens; no Nova monorepo dependency"},
+    {id:"b2",name:"Florence: provider record creation",s:0,e:1,owner:"Alex",notes:"Replaces old 3C→Nova sync",deps:["d2"]},
+    {id:"b3",name:"Short-version patient Firestore collection",s:0,e:1,owner:"Alex",notes:"Minimal doc; ID-compatible"},
+    {id:"b4",name:"KYC (WhoYou) integration",s:0,e:2,owner:"Alex + Vivian",notes:"External dependency — track closely"},
+    {id:"b5",name:"WhatsApp 2FA + duplicate prevention",s:1,e:2,owner:"Alex",notes:"OTP via WhatsApp; block duplicate patients",deps:["b4"]},
+    {id:"b6",name:"Path result → patient ID linking",s:1,e:2,owner:"Alex",notes:"Short ID compatible with Nova on upgrade",deps:["b3"]},
+    {id:"b7",name:"Usage tracking & tokenisation",s:3,e:4,owner:"Alex",notes:"Counter per provider; triggers upgrade prompt"}
+  ]},
+  {id:"signup",label:"Sign-up & Onboarding",color:"#0F6E56",bg:"#E1F5EE",tasks:[
+    {id:"s1",name:"Provider registration screen — build",s:1,e:2,owner:"Alex",notes:"Build starts W2 once UX spec signed off",urgent:true,deps:["d2","b2","b4"]},
+    {id:"s2",name:"HPCSA card upload",s:1,e:2,owner:"Alex",notes:"Mandatory photo upload",deps:["s1"]},
+    {id:"s3",name:"Client detection + cross-sell path",s:2,e:3,owner:"Alex + Heleen",notes:"3 flows: new / non-clinical / full clinical",deps:["s1"]},
+    {id:"s4",name:"Account activation → login via WhatsApp",s:3,e:3,owner:"Alex",notes:"Activate account; deliver login link via WhatsApp",deps:["s1","b5"]},
+    {id:"s5",name:"Campaign admin UI (QR limits)",s:3,e:3,owner:"Alex + Mat",notes:"Max scans, duration, expiry per campaign"}
+  ]},
+  {id:"path",label:"Pathology Features",color:"#D85A30",bg:"#FAECE7",tasks:[
+    {id:"p1",name:"Path results landing page",s:2,e:3,owner:"Alex",notes:"List of unreviewed results; primary home screen",deps:["b3","b6"]},
+    {id:"p2",name:"Path result detail + WhatsApp send",s:3,e:4,owner:"Alex",notes:"View original; send to patient via WhatsApp",deps:["p1"]},
+    {id:"p3",name:"Patient creation from path result",s:3,e:4,owner:"Alex",notes:"Core use case; short patient record created",deps:["p1","b3"]},
+    {id:"p4",name:"AI pathology parsing — Harry's agent",s:2,e:4,owner:"Harry + Alex",notes:"AI summarises result; test continuously"}
+  ]},
+  {id:"nora",label:"Nora / Clinical Note",color:"#533AB7",bg:"#EEEDFE",tasks:[
+    {id:"n1",name:"Nora clinical note component (Lite)",s:3,e:5,owner:"Alex",notes:"Voice → SOAP notes",deps:["d4"]},
+    {id:"n2",name:"Voice recording → notes generation",s:3,e:5,owner:"Alex",notes:"Capture, transcribe, generate note",deps:["n1"]},
+    {id:"n3",name:"Nora design merge into full HBC",s:5,e:6,owner:"Alex + Jared",notes:"Single shared component",deps:["n1","n2"]}
+  ]},
+  {id:"qa",label:"QA & Testing",color:"#3B6D11",bg:"#EAF3DE",tasks:[
+    {id:"q1",name:"QA: sign-up & registration flow",s:4,e:4,owner:"QA team",notes:"All 3 provider paths; agree test cases now",deps:["s1","s2","s3","s4"]},
+    {id:"q2",name:"QA: pathology features",s:4,e:5,owner:"QA team",notes:"Path display, WhatsApp send, patient creation",deps:["p1","p2","p3"]},
+    {id:"q3",name:"QA: Nora clinical note",s:5,e:5,owner:"QA team",notes:"Voice recording, transcription, SOAP output",deps:["n1","n2"]},
+    {id:"q4",name:"Pilot: select GP practices",s:6,e:7,owner:"Heleen + BCs",notes:"Real-world validation; feedback loop for v1.1",deps:["q1","q2","q3"]}
+  ]},
+  {id:"gtm",label:"Go-to-Market",color:"#414042",bg:"#F1EFE8",tasks:[
+    {id:"g1",name:"QR code generation + tracking",s:1,e:1,owner:"Mat",notes:"Static QR + scan analytics",urgent:true},
+    {id:"g2",name:"Marketing: launch planning session",s:1,e:1,owner:"Heleen + Marketing",notes:"Campaign brief output",urgent:true},
+    {id:"g3",name:"VC & fulfillment comms",s:1,e:2,owner:"Heleen",notes:"T0/T1 billing changes; equip fulfillment"},
+    {id:"g4",name:"Collateral: brief to training team",s:1,e:2,owner:"Heleen + Training",notes:"Lite feature set, user journey, upgrade path",deps:["g2"]},
+    {id:"g5",name:"Collateral: draft & review",s:2,e:3,owner:"Training + Heleen",notes:"One-pager, BC pitch guide, onboarding explainer",deps:["g4"]},
+    {id:"g6",name:"Marketing campaign execution",s:3,e:5,owner:"Marketing + Mat",notes:"Social, email, QR, conference materials",deps:["g2","g5"]},
+    {id:"g7",name:"Sales & BC training materials",s:4,e:5,owner:"Heleen",notes:"Day 1 value pitch; upsell script",deps:["g5"]},
+    {id:"g8",name:"Conference & social campaign assets",s:5,e:6,owner:"Mat + Heleen",notes:"QR flyers, LinkedIn, booth materials",deps:["g6"]}
+  ]}
+];
+
+const READINESS=[
+  {cat:"Product",items:["Provider registration UX spec finalised and signed off","Free trial terms decided (6-month vs token model)","Feature set frozen — no new scope","Feature-lock / upsell UX approved"]},
+  {cat:"Engineering",items:["Provider registration flow end-to-end working","Pathology results landing page complete","Nora clinical note working (voice → SOAP)","Usage tokenisation logic in place","Security review completed"]},
+  {cat:"QA & Testing",items:["All QA test cases agreed and executed","Zero P1 / P2 bugs open","Pilot feedback reviewed and actioned","Performance baseline validated"]},
+  {cat:"Go-to-Market",items:["Campaign brief approved by marketing","Training collateral reviewed and printed/published","BCs trained and ready for Day 1","QR codes generated and tracking live","VC and fulfillment teams briefed"]},
+  {cat:"Operations",items:["Support runbook for Clinical Lite queries published","Escalation path for bugs post-launch defined","Hypercare roster confirmed (who's on call week 1)","Rollback plan documented and tested"]},
+  {cat:"Data & Compliance",items:["POPIA assessment completed for new data flows","Patient Firestore collection access controls confirmed","Provider verification audit trail in place"]}
+];
+
+const RAID_DEFAULTS=[
+  {type:"risk",impact:"high",desc:"KYC (WhoYou) integration delay — external dependency outside team control",owner:"Alex",mit:"Weekly check-in with Vivian; fallback to HPCSA card only",date:"2026-04-08"},
+  {type:"risk",impact:"high",desc:"Nora + pathology build overlap in W4–W5 may exceed Alex's capacity",owner:"Heleen",mit:"Prioritise pathology first; Nora starts only once path landing page is done",date:"2026-04-08"},
+  {type:"risk",impact:"medium",desc:"AI pathology parsing quality may not be production-ready by W5",owner:"Harry",mit:"Test with real results from W3; define minimum quality threshold",date:"2026-04-08"},
+  {type:"assumption",impact:"medium",desc:"Alex's existing WhatsApp onboarding web app can be extended for registration",owner:"Alex",mit:"Validate in W1 before committing to timeline",date:"2026-04-08"},
+  {type:"dependency",impact:"high",desc:"Provider reg build (s1) depends on UX spec (d2) being done by Apr 14",owner:"Heleen",mit:"UX spec signed off by EOD Apr 14",date:"2026-04-08"},
+  {type:"issue",impact:"medium",desc:"Final product name not yet decided — 'Clinical Lite' is placeholder",owner:"Heleen",mit:"Decision needed by Apr 21 for GTM materials",date:"2026-04-08"}
+];
+
+// ─── STATE ─────────────────────────────────────────────────────────────────
+const SK='hbc_lite_shared_v1';
+let S=null;
+let activeTid=null, activePh=null, activeTab='details';
+
+function defaultState(){
+  const s={tasks:{},meetings:[],raid:[...RAID_DEFAULTS],decisions:[],readiness:{}};
+  const activeIds=new Set(['d1','d2','d3','b1','b2','b3','b4']);
+  PHASES.forEach(ph=>ph.tasks.forEach(t=>{
+    s.tasks[t.id]={status:activeIds.has(t.id)?'active':'upcoming',owner:t.owner,progress:0,notes:t.notes,comments:[],start:t.s,end:t.e,origStart:t.s,origEnd:t.e,timelineChanges:[],deps:t.deps||[]};
+  }));
+  READINESS.forEach(cat=>cat.items.forEach((_,i)=>{s.readiness[cat.cat+'_'+i]=false;}));
+  return s;
+}
+async function loadState(){
+  try{
+    const r=await window.storage.get(SK,true);
+    if(r&&r.value) return JSON.parse(r.value);
+  }catch(e){}
+  return defaultState();
+}
+async function save(){
+  try{ await window.storage.set(SK,JSON.stringify(S),true); }catch(e){ console.warn('Save failed',e); }
+}
+async function resetAll(){
+  if(!confirm('Reset ALL shared data including meetings, comments and timeline changes?')) return;
+  try{ await window.storage.delete(SK,true); }catch(e){}
+  location.reload();
+}
+
+// ─── BUILD GANTT ───────────────────────────────────────────────────────────
+function build(){
+  const g=document.getElementById('gantt');
+  g.innerHTML='';
+  const WW=100;
+
+  // header
+  const th=mk('div','gh-cell gh-task'); th.textContent='Task / Workstream'; g.appendChild(th);
+  WEEKS.forEach((w,i)=>{
+    const ms=MS.find(m=>m.week===i);
+    const c=mk('div','gh-week gh-cell'+(w.today?' today-col':w.next?' next-col':''));
+    if(ms){c.style.borderBottomColor=ms.color;}
+    c.innerHTML=`<div class="wl">${w.l}${w.today?' ●':''}</div><div class="wd">${w.d}</div>${ms?`<div><span class="ms-badge" style="background:${ms.color}">${ms.label}</span></div>`:''}`;
+    g.appendChild(c);
+  });
+
+  PHASES.forEach(ph=>{
+    const pr=mk('div','phase-row');
+    pr.style.background=ph.bg; pr.style.color=ph.color;
+    pr.innerHTML=`<span class="pdot" style="background:${ph.color}"></span>${ph.label}`;
+    g.appendChild(pr);
+
+    ph.tasks.forEach(t=>{
+      const ts=S.tasks[t.id];
+      const hasDrift=ts.start!==ts.origStart||ts.end!==ts.origEnd;
+      const sdColor={upcoming:'#aaa',active:'#F7941D',blocked:'#C0392B',complete:'#3B6D11'}[ts.status];
+      const commentCount=ts.comments.length;
+      const depsStr=ts.deps&&ts.deps.length?ts.deps.join(', '):'';
+
+      const nc=mk('div','task-name-cell');
+      nc.innerHTML=`<span class="sdot" style="background:${sdColor}"></span><span class="tntext">${t.name}</span><span class="owner-tag">${ts.owner}</span>${t.urgent&&ts.status==='upcoming'?'<span class="utag">⚡ This week</span>':''}${ts.status==='blocked'?'<span class="btag">⚠ Blocked</span>':''}${hasDrift?'<span class="dtag" title="Timeline has been rescheduled">↔ Rescheduled</span>':''}${commentCount>0?`<span class="utag" style="background:#f0ede8;color:var(--muted)">💬 ${commentCount}</span>`:''}${ts.progress>0&&ts.status!=='complete'?`<span class="owner-tag">${ts.progress}%</span>`:''}${ts.status==='complete'?'<span class="utag" style="background:#eaf3de;color:var(--success)">✓ Done</span>':''}<span class="edit-hint">Edit →</span>`;
+      nc.onclick=()=>openPanel(t,ph);
+      g.appendChild(nc);
+
+      const br=mk('div','bar-row');
+      br.onclick=()=>openPanel(t,ph);
+      WEEKS.forEach((w,i)=>{
+        const msCol=MS.find(m=>m.week===i);
+        const s=mk('div','bg-stripe'+(w.today?' today-col':w.next?' next-col':'')+(msCol?' ms-col':''));
+        br.appendChild(s);
+      });
+
+      // Ghost bar (original position) if drifted
+      if(hasDrift){
+        const ghost=mk('div','bar-ghost');
+        const gL=ts.origStart*WW+5, gW=(ts.origEnd-ts.origStart+1)*WW-10;
+        ghost.style.cssText=`left:${gL}px;width:${gW}px;border-color:${ph.color};background:${ph.color};`;
+        br.appendChild(ghost);
+      }
+
+      // Current bar
+      const bar=mk('div','bar');
+      const L=ts.start*WW+5, W=(ts.end-ts.start+1)*WW-10;
+      bar.style.cssText=`left:${L}px;width:${W}px;background:${ph.color};--bc:${ph.color};`;
+      if(ts.status==='blocked') bar.classList.add('blocked');
+      else if(ts.status==='complete') bar.classList.add('complete');
+      else if(ts.status==='active') bar.classList.add('active');
+      else bar.classList.add('upcoming');
+      if(t.urgent&&ts.status==='upcoming') bar.classList.add('urgent');
+      if(ts.progress>0){const pg=mk('div','bar-progress');pg.style.width=ts.progress+'%';bar.appendChild(pg);}
+      if(hasDrift){const db=mk('div','drift-badge');db.textContent='↔';bar.appendChild(db);}
+      const lbl=mk('span','');lbl.style.position='relative';lbl.textContent=W>80?t.name:'';
+      bar.appendChild(lbl);
+      br.appendChild(bar);
+      g.appendChild(br);
+    });
+  });
+
+  updateStats();
+  renderReadiness();
+  updateBadges();
+}
+
+// ─── PANEL ──────────────────────────────────────────────────────────────────
+function openPanel(task,phase){
+  activeTid=task.id; activePh=phase;
+  const ts=S.tasks[task.id];
+  document.getElementById('p-title').textContent=task.name;
+  document.getElementById('p-phase').textContent=phase.label;
+  document.getElementById('p-phase').style.color=phase.color;
+  document.getElementById('p-status').value=ts.status; styleStatus();
+  document.getElementById('p-owner').value=ts.owner;
+  document.getElementById('p-prog').value=ts.progress;
+  document.getElementById('p-pct-l').textContent=ts.progress+'%';
+  document.getElementById('p-pct-v').textContent=ts.progress+'%';
+  document.getElementById('p-prog').oninput=function(){document.getElementById('p-pct-l').textContent=this.value+'%';};
+  document.getElementById('p-notes').value=ts.notes;
+  document.getElementById('p-deps').value=(ts.deps||[]).join(', ');
+
+  // Timeline tab
+  const ss=document.getElementById('p-start'), se=document.getElementById('p-end');
+  ss.innerHTML=se.innerHTML=WEEKS.map((w,i)=>`<option value="${i}">${w.l} — ${w.d}</option>`).join('');
+  ss.value=ts.start; se.value=ts.end;
+  document.getElementById('orig-dates').textContent=`Original: ${WEEKS[ts.origStart].d} → ${WEEKS[ts.origEnd].d}`;
+  document.getElementById('p-reason').value='';
+  renderTlHistory(ts.timelineChanges);
+
+  renderComments(ts.comments);
+  document.getElementById('p-new-comment').value='';
+  showTab('details');
+  document.getElementById('ov').classList.add('open');
+  document.getElementById('panel').classList.add('open');
+}
+function closePanel(){document.getElementById('ov').classList.remove('open');document.getElementById('panel').classList.remove('open');activeTid=null;}
+function showTab(t){
+  activeTab=t;
+  ['details','timeline','comments'].forEach(id=>{
+    document.getElementById('tab-'+id).style.display=id===t?'flex':'none';
+    if(id===t) document.getElementById('tab-'+id).style.flexDirection='column';
+  });
+  document.querySelectorAll('.tab').forEach((el,i)=>{
+    el.classList.toggle('active',['details','timeline','comments'][i]===t);
+  });
+}
+function styleStatus(){
+  const sel=document.getElementById('p-status');
+  sel.className='s-'+sel.value;
+}
+
+async function saveTask(){
+  if(!activeTid) return;
+  const ts=S.tasks[activeTid];
+  ts.status=document.getElementById('p-status').value;
+  ts.owner=document.getElementById('p-owner').value.trim();
+  ts.progress=parseInt(document.getElementById('p-prog').value);
+  ts.notes=document.getElementById('p-notes').value.trim();
+  ts.deps=document.getElementById('p-deps').value.split(',').map(s=>s.trim()).filter(Boolean);
+  if(ts.status==='complete') ts.progress=100;
+
+  // Timeline change detection
+  const newStart=parseInt(document.getElementById('p-start').value);
+  const newEnd=parseInt(document.getElementById('p-end').value);
+  if(newStart!==ts.start||newEnd!==ts.end){
+    const reason=document.getElementById('p-reason').value.trim();
+    const changedBy=document.getElementById('p-changed-by').value.trim()||'Team';
+    if(!reason){alert('Please provide a reason for the timeline change.');showTab('timeline');return;}
+    ts.timelineChanges.unshift({date:today(),changedBy,oldStart:ts.start,oldEnd:ts.end,newStart,newEnd,reason});
+    ts.start=newStart; ts.end=newEnd;
+  }
+
+  await save(); build(); closePanel();
+}
+
+// ─── COMMENTS ───────────────────────────────────────────────────────────────
+function renderComments(comments){
+  const ct=document.getElementById('p-comments');
+  if(!comments.length){ct.innerHTML='<div style="font-size:12px;color:var(--muted);padding:4px 0">No comments yet.</div>';return;}
+  ct.innerHTML=comments.map((c,i)=>`<div class="comment"><div class="cm"><span class="ca">${esc(c.author)}</span><span style="display:flex;align-items:center;gap:5px"><span class="cd">${c.date}</span><button class="cdel" onclick="delComment(${i})">✕</button></span></div><div class="ct">${esc(c.text)}</div></div>`).join('');
+}
+async function addComment(){
+  if(!activeTid) return;
+  const text=document.getElementById('p-new-comment').value.trim();
+  const author=document.getElementById('p-author').value.trim()||'Team';
+  if(!text) return;
+  S.tasks[activeTid].comments.push({author,text,date:today()});
+  document.getElementById('p-new-comment').value='';
+  renderComments(S.tasks[activeTid].comments);
+  await save(); updateStats();
+}
+async function delComment(i){if(!activeTid)return;S.tasks[activeTid].comments.splice(i,1);renderComments(S.tasks[activeTid].comments);await save();updateStats();}
+
+// ─── TIMELINE HISTORY ───────────────────────────────────────────────────────
+function renderTlHistory(changes){
+  const el=document.getElementById('tl-history');
+  if(!changes||!changes.length){el.innerHTML='<div style="font-size:11px;color:var(--muted)">No timeline changes recorded yet.</div>';return;}
+  el.innerHTML=changes.map(c=>`<div class="tl-change"><div class="tl-change-meta">${c.date} · ${esc(c.changedBy)}</div><div class="tl-change-detail">${WEEKS[c.oldStart].l}–${WEEKS[c.oldEnd].l} → ${WEEKS[c.newStart].l}–${WEEKS[c.newEnd].l}</div>${c.reason?`<div class="tl-change-reason">${esc(c.reason)}</div>`:''}</div>`).join('');
+}
+
+// ─── MEETINGS ───────────────────────────────────────────────────────────────
+function openMeet(){document.getElementById('m-date').value=today();document.getElementById('meet-panel').classList.add('open');document.getElementById('ov').classList.add('open');}
+function closeMeet(){document.getElementById('meet-panel').classList.remove('open');document.getElementById('ov').classList.remove('open');}
+async function addMeeting(){
+  const notes=document.getElementById('m-notes').value.trim();
+  if(!notes) return;
+  S.meetings.unshift({date:document.getElementById('m-date').value||today(),attendees:document.getElementById('m-att').value.trim(),notes});
+  document.getElementById('m-notes').value=''; document.getElementById('m-att').value='';
+  await save(); renderMeetings(); updateBadges();
+}
+function renderMeetings(){
+  const ml=document.getElementById('m-list');
+  if(!S.meetings.length){ml.innerHTML='<div class="empty-state">No meetings logged yet.</div>';return;}
+  ml.innerHTML=S.meetings.map((m,i)=>`<div class="log-entry"><button class="ldel" onclick="delMeet(${i})">✕</button><div class="log-entry-meta"><span class="log-date">${m.date}</span>${m.attendees?`<span class="log-owner">· ${esc(m.attendees)}</span>`:''}</div><div class="log-text">${esc(m.notes)}</div></div>`).join('');
+}
+async function delMeet(i){S.meetings.splice(i,1);await save();renderMeetings();updateBadges();}
+
+// ─── RAID ────────────────────────────────────────────────────────────────────
+function openRaid(){document.getElementById('raid-panel').classList.add('open');document.getElementById('ov').classList.add('open');renderRaid();}
+function closeRaid(){document.getElementById('raid-panel').classList.remove('open');document.getElementById('ov').classList.remove('open');}
+const raidColors={risk:{bg:'#fff0ee',color:'#C0392B'},assumption:{bg:'#fff8f0',color:'#D85A30'},issue:{bg:'#fef9e7',color:'#8B6914'},dependency:{bg:'#eeedfe',color:'#533AB7'}};
+async function addRaid(){
+  const desc=document.getElementById('r-desc').value.trim();
+  if(!desc) return;
+  S.raid.unshift({type:document.getElementById('r-type').value,impact:document.getElementById('r-impact').value,desc,owner:document.getElementById('r-owner').value.trim(),mit:document.getElementById('r-mit').value.trim(),date:today()});
+  document.getElementById('r-desc').value=''; document.getElementById('r-owner').value=''; document.getElementById('r-mit').value='';
+  await save(); renderRaid(); updateBadges();
+}
+function renderRaid(){
+  const rl=document.getElementById('r-list');
+  if(!S.raid.length){rl.innerHTML='<div class="empty-state">No RAID items logged.</div>';return;}
+  rl.innerHTML=S.raid.map((r,i)=>{
+    const rc=raidColors[r.type]||raidColors.risk;
+    return`<div class="log-entry"><button class="ldel" onclick="delRaid(${i})">✕</button><div class="log-entry-meta"><span class="log-tag" style="background:${rc.bg};color:${rc.color}">${r.type.toUpperCase()}</span><span class="log-tag" style="background:#f4f2ef;color:var(--muted)">${r.impact} impact</span><span class="log-date">${r.date}</span></div><div class="log-text">${esc(r.desc)}</div>${r.owner?`<div class="log-owner" style="margin-top:3px">Owner: ${esc(r.owner)}${r.mit?' · Mitigation: '+esc(r.mit):''}</div>`:''}</div>`;
+  }).join('');
+  updateBadges();
+}
+async function delRaid(i){S.raid.splice(i,1);await save();renderRaid();}
+
+// ─── DECISIONS ───────────────────────────────────────────────────────────────
+function openDec(){document.getElementById('d-date').value=today();document.getElementById('dec-panel').classList.add('open');document.getElementById('ov').classList.add('open');renderDec();}
+function closeDec(){document.getElementById('dec-panel').classList.remove('open');document.getElementById('ov').classList.remove('open');}
+async function addDecision(){
+  const text=document.getElementById('d-text').value.trim();
+  if(!text) return;
+  S.decisions.unshift({text,by:document.getElementById('d-by').value.trim(),date:document.getElementById('d-date').value||today(),why:document.getElementById('d-why').value.trim()});
+  document.getElementById('d-text').value=''; document.getElementById('d-by').value=''; document.getElementById('d-why').value='';
+  await save(); renderDec(); updateBadges();
+}
+function renderDec(){
+  const dl=document.getElementById('d-list');
+  if(!S.decisions.length){dl.innerHTML='<div class="empty-state">No decisions logged yet.<br>Start with the open items: free trial model, product name, BPN vs TPN.</div>';return;}
+  dl.innerHTML=S.decisions.map((d,i)=>`<div class="log-entry"><button class="ldel" onclick="delDec(${i})">✕</button><div class="log-entry-meta"><span class="log-date">${d.date}</span>${d.by?`<span class="log-owner">· ${esc(d.by)}</span>`:''}</div><div class="log-text" style="font-weight:600">${esc(d.text)}</div>${d.why?`<div class="log-text" style="color:var(--muted);margin-top:2px">${esc(d.why)}</div>`:''}</div>`).join('');
+  updateBadges();
+}
+async function delDec(i){S.decisions.splice(i,1);await save();renderDec();}
+
+// ─── READINESS ───────────────────────────────────────────────────────────────
+function renderReadiness(){
+  const grid=document.getElementById('readiness-grid');
+  grid.innerHTML=READINESS.map(cat=>`
+    <div class="rc"><div class="rc-title">${cat.cat}</div>${cat.items.map((item,i)=>{
+      const key=cat.cat+'_'+i; const checked=S.readiness[key]||false;
+      return`<div class="rc-item" onclick="toggleReady('${key}')"><div class="rc-check${checked?' checked':''}"></div><div class="rc-text${checked?' checked-text':''}">${item}</div></div>`;
+    }).join('')}</div>`).join('');
+  updateReadinessScore();
+}
+async function toggleReady(key){S.readiness[key]=!S.readiness[key];await save();renderReadiness();}
+function updateReadinessScore(){
+  const total=Object.keys(S.readiness).length;
+  const done=Object.values(S.readiness).filter(Boolean).length;
+  const pct=total?Math.round(done/total*100):0;
+  document.getElementById('ready-score').textContent=`${done} / ${total} complete`;
+  document.getElementById('ready-bar').style.width=pct+'%';
+  document.getElementById('sr').textContent=pct+'%';
+  document.getElementById('sr').className='card-value '+(pct>=80?'green':pct>=50?'orange':'red');
+}
+
+// ─── STATS ───────────────────────────────────────────────────────────────────
+function updateStats(){
+  let c=0,a=0,b=0,d=0,comments=0;
+  Object.entries(S.tasks).forEach(([id,t])=>{
+    if(t.status==='complete')c++;
+    else if(t.status==='active')a++;
+    else if(t.status==='blocked')b++;
+    if(t.start!==t.origStart||t.end!==t.origEnd)d++;
+    comments+=(t.comments||[]).length;
+  });
+  document.getElementById('sc').textContent=c;
+  document.getElementById('sa').textContent=a;
+  document.getElementById('sb').textContent=b;
+  document.getElementById('sd').textContent=d;
+}
+function updateBadges(){
+  const items=[
+    ['b-meet',S.meetings.length],
+    ['b-raid',S.raid.length],
+    ['b-dec',S.decisions.length]
+  ];
+  items.forEach(([id,n])=>{
+    const el=document.getElementById(id);
+    el.textContent=n; el.style.display=n>0?'inline':'none';
+  });
+}
+
+function mk(tag,cls){const d=document.createElement(tag);d.className=cls;return d;}
+function today(){return new Date().toISOString().split('T')[0];}
+function esc(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+
+// Show loading state
+document.getElementById('gantt').innerHTML='<div style="grid-column:1/-1;padding:32px;text-align:center;color:var(--muted);font-size:13px">Loading shared data...</div>';
+
+(async()=>{
+  S = await loadState();
+  build();
+  renderMeetings();
+  renderRaid();
+  renderDec();
+})();
+</script>
+</body>
+</html>
